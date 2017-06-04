@@ -32,13 +32,16 @@ namespace Cards
             {
                 Console.WriteLine("\n[ ROUND {0} ]\n", roundCount);
 
+                InitTurn();
                 ShuffleCards();
                 DealCards(currentLeader);
+                PassCards();
+
                 int currentPlayerIndex = GetStartingPlayer();
                 
                 for (int turns = 0; turns < turnCount; turns++)
                 {
-                    InitRound();
+                    playingTable.Clear();
 
                     int currentSuit = -1;
                     
@@ -119,13 +122,46 @@ namespace Cards
             return 0;
         }
 
-        private void InitRound()
+        private void InitTurn()
         {
-            playingTable.Clear();
-
             for(int i=0; i<players.Length; i++)
             {
                 players[i].ClearTricks();
+            }
+        }
+
+        private void PassCards()
+        {
+            List<HashSet<Card>> cardsList = new List<HashSet<Card>>();
+
+            for(int i=0; i<players.Length; i++)
+            {
+                cardsList.Add(players[i].GetCardsToPass());
+            }
+
+            // pass cards to left
+            if (roundCount % 4 == 0)
+            {
+                for(int i=0; i<players.Length; i++)
+                {
+                    players[(players.Length - i - 1) % players.Length].ReceivePassedCards(cardsList[i]);
+                }
+            }
+            // pass cards to right
+            else if(roundCount % 4 == 1)
+            {
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[(i + 1) % players.Length].ReceivePassedCards(cardsList[i]);
+                }
+            }
+            // pass cards to front
+            else if (roundCount % 4 == 2)
+            {
+                for (int i = 0; i < players.Length; i++)
+                {
+                    players[(i + 2) % players.Length].ReceivePassedCards(cardsList[i]);
+                }
             }
         }
     }

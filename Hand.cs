@@ -105,6 +105,12 @@ namespace Cards
             return null;
         }
 
+        public void PushCard(Card card)
+        {
+            cards.Add(card);
+            Sort();
+        }
+
         public HashSet<Card> GetCardsOfSuit(int suit)
         {
             HashSet<Card> cardsOfSuit = new HashSet<Card>();

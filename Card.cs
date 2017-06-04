@@ -42,13 +42,13 @@ namespace Cards
             }
             else if (suit == c.suit)
             {
-                if (number > c.number)
-                {
-                    return 1;
-                }
-                else if (number == c.number)
+                if (number == c.number)
                 {
                     return 0;
+                }
+                else if (number > c.number || number == 0)
+                {
+                    return 1;
                 }
                 else
                 {

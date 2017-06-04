@@ -107,5 +107,30 @@ namespace Cards
         {
             tricks.Clear();
         }
+
+        public HashSet<Card> GetCardsToPass()
+        {
+            HashSet<Card> cards = new HashSet<Card>();
+            int cardCount = 3;
+
+            ShowHand();
+
+            Console.WriteLine("\n[ SELECT CARDS TO PASS ]\n");
+
+            while (cards.Count < cardCount)
+            {
+                cards.Add(PlayCard());
+            }
+
+            return cards;
+        }
+
+        public void ReceivePassedCards(HashSet<Card> cards)
+        {
+            foreach(Card card in cards)
+            {
+                hand.PushCard(card);
+            }
+        }
     }
 }
