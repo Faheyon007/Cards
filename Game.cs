@@ -9,7 +9,7 @@ namespace Cards
     public class Game
     {
         private CardSet cardset = new CardSet();
-        private List<Tuple<int, Card>> playingTable = new List<Tuple<int, Card>>();
+        private Table playingTable = new Table();
         private bool gameOver = false;
         private Player[] players;
         private int roundCount = 1;
@@ -38,17 +38,17 @@ namespace Cards
                 
                 for (int turns = 0; turns < turnCount; turns++)
                 {
+                    InitRound();
+
                     int currentSuit = -1;
                     
-                    playingTable.Clear();
-
                     for (int i = 0; i < players.Length; i++)
                     {
                         ShowTable();
 
                         players[currentPlayerIndex].ShowHand(currentSuit);
                         Card playedCard = players[currentPlayerIndex].PlayCard();
-                        playingTable.Add(Tuple.Create(currentPlayerIndex, playedCard));
+                        playingTable.Add(currentPlayerIndex, playedCard);
 
                         if (i == 0)
                         {
@@ -59,7 +59,13 @@ namespace Cards
                     }
 
                     ShowTable();
-                    playingTable.Clear();
+
+                    int winner = playingTable.GetWinner();
+                    HashSet<Card> cards = playingTable.GetCards();
+                    players[winner].ReceiveTrick(cards);
+                    currentPlayerIndex = winner;
+
+                    Console.WriteLine((string.Format("\n[ {0} wins the trick ]\n", players[winner]).ToUpper()));
                 }
 
                 //Update Score of Each Player
@@ -93,11 +99,8 @@ namespace Cards
 
         private void ShowTable()
         {
-            Console.WriteLine("\n\n[ CARDS ON THE TABLE ]");
-            foreach (Tuple<int, Card> tableItem in playingTable)
-            {
-                Console.WriteLine("{0} from {1}", tableItem.Item2, players[tableItem.Item1]);
-            }
+            Console.WriteLine("\n\n[ CARDS ON THE TABLE ]\n");
+            Console.WriteLine(playingTable);
         }
 
         private int GetStartingPlayer()
@@ -114,6 +117,16 @@ namespace Cards
             }
 
             return 0;
+        }
+
+        private void InitRound()
+        {
+            playingTable.Clear();
+
+            for(int i=0; i<players.Length; i++)
+            {
+                players[i].ClearTricks();
+            }
         }
     }
 }

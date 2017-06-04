@@ -11,7 +11,7 @@ namespace Cards
         //private User user;
         public string name { get; private set; }
         private Hand hand;
-        public List<HashSet<Card>> tricks { get; set; } = new List<HashSet<Card>>();
+        public List<HashSet<Card>> tricks { get; private set; } = new List<HashSet<Card>>();
 
 
         public Player() { }
@@ -96,6 +96,16 @@ namespace Cards
             {
                 return false;
             }
+        }
+
+        public void ReceiveTrick(HashSet<Card> cards)
+        {
+            tricks.Add(cards);
+        }
+
+        public void ClearTricks()
+        {
+            tricks.Clear();
         }
     }
 }
