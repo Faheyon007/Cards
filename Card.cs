@@ -46,7 +46,15 @@ namespace Cards
                 {
                     return 0;
                 }
-                else if (number > c.number || number == 0)
+                else if (number == 0 && c.number > 0)
+                {
+                    return 1;
+                }
+                else if (c.number == 0 && number > 0)
+                {
+                    return -1;
+                }
+                else if (number > c.number)
                 {
                     return 1;
                 }
