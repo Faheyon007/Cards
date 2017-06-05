@@ -12,6 +12,9 @@ namespace Cards
         public string name { get; private set; }
         private Hand hand;
         public List<HashSet<Card>> tricks { get; private set; } = new List<HashSet<Card>>();
+        private bool heartsBreak = false;
+        private bool firstPass = true;
+        private bool firstMove = true;
 
 
         public Player() { }
@@ -30,17 +33,22 @@ namespace Cards
         {
             this.hand = hand;
         }
-        public Card PlayCard()
+
+        public Card PlayCard(int playingSuit = -1)
         {
             int suit, number;
             string strSuit, strNumber;
 
             while (true)
             {
+                ShowHand();
                 Console.Write("Select a card ( Suit, Number ): ");
 
                 bool invalidCard = false;
+                bool invalidSuit = false;
                 bool cardNotFound = false;
+                bool beginningPlayer = false;
+
                 string[] inputs = Console.ReadLine().Split(' ');
                 strSuit = inputs[0];
                 strNumber = inputs[1];
@@ -48,7 +56,17 @@ namespace Cards
                 number = CardInfo.GetNumber(strNumber);
 
                 Card card = hand.PullCard(suit, number);
+                ShowHand();
 
+
+                if(playingSuit == -1)
+                {
+                    beginningPlayer = true;
+                }
+                if (suit != playingSuit && hand.GetCardsOfSuit(playingSuit).Count > 0)
+                {
+                    invalidSuit = true;
+                }
                 if (suit == -1 && number == -1)
                 {
                     invalidCard = true;
@@ -58,9 +76,36 @@ namespace Cards
                     cardNotFound = true;
                 }
 
-                if (!invalidCard && !cardNotFound)
+                if (!invalidCard && !cardNotFound && !invalidSuit)
                 {
-                    return card;
+                    if(firstMove)
+                    {
+                        if (card.actualSuit.Equals("Clubs") && card.actualNumber.Equals("2"))
+                        {
+                            return card;
+                        }
+                    }
+                    else if (firstPass)
+                    {
+                        if (!(card.actualSuit.Equals("Hearts") || (card.actualSuit.Equals("Spades") && card.actualNumber.Equals("Queen"))))
+                        {
+                            return card;
+                        }
+                    }
+                    else
+                    {
+                        if (card.actualSuit.Equals("Hearts") && !heartsBreak && beginningPlayer) { }
+                        else
+                        {
+                            return card;
+                        }
+                    }
+                }
+
+                // if the card can not be returned then push the card back 
+                if (card != null)
+                {
+                    hand.PushCard(card);
                 }
             }
         }
@@ -127,10 +172,25 @@ namespace Cards
 
         public void ReceivePassedCards(HashSet<Card> cards)
         {
-            foreach(Card card in cards)
+            foreach (Card card in cards)
             {
                 hand.PushCard(card);
             }
+        }
+
+        public void HeartsBreakStatusChanged(bool status)
+        {
+            heartsBreak = status;
+        }
+
+        public void FirstPassStatusChanged(bool status)
+        {
+            firstPass = status;
+        }
+
+        public void FirstMoveStatusChanged(bool status)
+        {
+            firstMove = status;
         }
     }
 }
