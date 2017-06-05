@@ -16,11 +16,26 @@ namespace Cards
         private int turnCount;
         private Random rndGen = new Random((int)DateTime.Now.Ticks);
 
+        public delegate void HeartsBreakStatusListener(bool status);
+        public event HeartsBreakStatusListener heartsBreakStatusListener;
+        public delegate void FirstPassStatusListener(bool status);
+        public event FirstPassStatusListener firstPassStatusListener;
+        public delegate void FirstMoveStatusListener(bool status);
+        public event FirstMoveStatusListener firstMoveStatusListener;
+
 
         public Game(Player[] players)
         {
             this.players = players;
             turnCount = cardset.cardCount / players.Length;
+
+            // subscribing players to status listener events
+            foreach(Player player in players)
+            {
+                heartsBreakStatusListener += player.HeartsBreakStatusChanged;
+                firstPassStatusListener += player.FirstPassStatusChanged;
+                firstMoveStatusListener += player.FirstMoveStatusChanged;
+            }
         }
 
         // Game Starts Here
@@ -35,10 +50,10 @@ namespace Cards
                 InitTurn();
                 ShuffleCards();
                 DealCards(currentLeader);
-                PassCards();
+                //PassCards();
 
                 int currentPlayerIndex = GetStartingPlayer();
-                
+
                 for (int turns = 0; turns < turnCount; turns++)
                 {
                     playingTable.Clear();
@@ -50,11 +65,18 @@ namespace Cards
                         ShowTable();
 
                         players[currentPlayerIndex].ShowHand(currentSuit);
-                        Card playedCard = players[currentPlayerIndex].PlayCard();
+                        Card playedCard = players[currentPlayerIndex].PlayCard(currentSuit);
+
+                        if (playedCard.actualSuit == "Hearts")
+                        {
+                            heartsBreakStatusListener(true);
+                        }
+
                         playingTable.Add(currentPlayerIndex, playedCard);
 
                         if (i == 0)
                         {
+                            firstMoveStatusListener(false);
                             currentSuit = playedCard.suit;
                         }
 
@@ -69,6 +91,8 @@ namespace Cards
                     currentPlayerIndex = winner;
 
                     Console.WriteLine((string.Format("\n[ {0} wins the trick ]\n", players[winner]).ToUpper()));
+
+                    firstPassStatusListener(false);
                 }
 
                 //Update Score of Each Player
@@ -124,7 +148,11 @@ namespace Cards
 
         private void InitTurn()
         {
-            for(int i=0; i<players.Length; i++)
+            heartsBreakStatusListener(false);
+            firstPassStatusListener(true);
+            firstMoveStatusListener(true);
+
+            for (int i=0; i<players.Length; i++)
             {
                 players[i].ClearTricks();
             }
