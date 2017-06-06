@@ -59,7 +59,7 @@ namespace Cards
                 Card card = hand.PullCard(suit, number);
 
 
-                if(playingSuit == -1)
+                if (playingSuit == -1)
                 {
                     beginningPlayer = true;
                 }
@@ -78,7 +78,7 @@ namespace Cards
 
                 if (!invalidCard && !cardNotFound && !invalidSuit)
                 {
-                    if(firstMove)
+                    if (firstMove)
                     {
                         if (card.actualSuit.Equals("Clubs") && card.actualNumber.Equals("2"))
                         {
@@ -105,6 +105,46 @@ namespace Cards
                 // if the card can not be returned then push the card back 
                 hand.PushCard(card);
             }
+        }
+
+        public Hand GetPlayableCards(int playingSuit = -1)
+        {
+            Hand playableHand = (Hand)hand.Clone();
+            bool beginningPlayer = false;
+
+            if (playingSuit == -1)
+            {
+                beginningPlayer = true;
+            }
+
+
+            if (firstMove)
+            {
+                playableHand.Clear();
+                playableHand.PushCard(hand.GetCard(CardInfo.GetSuit("Clubs"), CardInfo.GetNumber("2")));
+            }
+            else if (firstPass)
+            {
+                playableHand.RemoveCardsOfSuit(CardInfo.GetSuit("Hearts"));
+                playableHand.PullCard(CardInfo.GetSuit("Spades"), CardInfo.GetNumber("Queen"));
+            }
+            else
+            {
+                if (hand.ContainsSuit(playingSuit))
+                {
+                    playableHand.Clear();
+                    playableHand.PushCard(hand.GetCardsOfSuit(playingSuit));
+                }
+                else
+                {
+                    if (!heartsBreak && beginningPlayer)
+                    {
+                        playableHand.RemoveCardsOfSuit(CardInfo.GetSuit("Hearts"));
+                    }
+                }
+            }
+
+            return playableHand;
         }
 
         public void ShowHand(int suit = -1)

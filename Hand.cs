@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Cards
 {
-    public class Hand
+    public class Hand : ICloneable
     {
         private HashSet<Card> cards = new HashSet<Card>();
 
@@ -116,6 +117,20 @@ namespace Cards
             Sort();
         }
 
+        public void PushCard(HashSet<Card> cards)
+        {
+            foreach (Card card in cards)
+            {
+                if (card != null)
+                {
+                    cards.Add(card);
+
+                }
+            }
+
+            Sort();
+        }
+
         public HashSet<Card> GetCardsOfSuit(int suit)
         {
             HashSet<Card> cardsOfSuit = new HashSet<Card>();
@@ -131,6 +146,21 @@ namespace Cards
             return cardsOfSuit;
         }
         
+        public void RemoveCardsOfSuit(int suit)
+        {
+            HashSet<Card> newCards = new HashSet<Card>();
+
+            foreach(Card card in cards)
+            {
+                if(card.suit != suit)
+                {
+                    newCards.Add(card);
+                }
+            }
+
+            cards = newCards;
+        }
+
         public void Sort()
         {
             var sortedCards = cards.ToList();
@@ -149,5 +179,16 @@ namespace Cards
 
             return str;
         }
+
+        public Object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        public void Clear()
+        {
+            cards.Clear();
+        }
+
     }
 }
