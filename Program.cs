@@ -10,38 +10,38 @@ namespace Cards
     {
         static void Main(string[] args)
         {
-            CardSet cardset = new CardSet();
-            Console.WriteLine(cardset);
+            //CardSet cardset = new CardSet();
+            //Console.WriteLine(cardset);
 
 
-            for (int i = 0; i < 11; i++)
-            {
-                cardset.RiffleShuffle();
-            }
+            //for (int i = 0; i < 11; i++)
+            //{
+            //    cardset.RiffleShuffle();
+            //}
 
 
-            HashSet<Card>[] cardSegments = cardset.GetEqualSegments(4);
-            Hand[] hands = new Hand[4];
+            //HashSet<Card>[] cardSegments = cardset.GetEqualSegments(4);
+            //Hand[] hands = new Hand[4];
 
-            for (int i = 0; i < 4; i++)
-            {
-                hands[i] = new Hand(cardSegments[i]);
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    hands[i] = new Hand(cardSegments[i]);
+            //}
 
-            foreach (var hand in hands)
-            {
-                Console.WriteLine("[ HAND ]");
-                Console.WriteLine(hand);
-                Console.WriteLine();
-            }
+            //foreach (var hand in hands)
+            //{
+            //    Console.WriteLine("[ HAND ]");
+            //    Console.WriteLine(hand);
+            //    Console.WriteLine();
+            //}
 
-            Console.Write("Enter Hand and Suit to remove : ");
-            string[] inputs = Console.ReadLine().Split(' ');
-            int handNo = int.Parse(inputs[0]);
-            int suitNo = int.Parse(inputs[1]);
+            //Console.Write("Enter Hand and Suit to remove : ");
+            //string[] inputs = Console.ReadLine().Split(' ');
+            //int handNo = int.Parse(inputs[0]);
+            //int suitNo = int.Parse(inputs[1]);
 
-            hands[handNo].RemoveCardsOfSuit(suitNo);
-            Console.WriteLine(hands[handNo]);
+            //hands[handNo].RemoveCardsOfSuit(suitNo);
+            //Console.WriteLine(hands[handNo]);
 
             //Console.WriteLine("[ PULLING CARD ]");
             //int handNo, suit, number;
@@ -77,10 +77,10 @@ namespace Cards
             //Console.WriteLine(hands[handNo]);
 
 
-            //Player[] players = { new Player("Ayon"), new Player("Leon"), new Player("Sazid"), new Player("Mota") };
-            //Game hearts = new Game(players);
+            Player[] players = { new Player("Ayon"), new Player("Leon"), new Player("Sazid"), new Player("Mota") };
+            Game hearts = new Game(players);
 
-            //hearts.Play();
+            hearts.Play();
 
             Console.ReadKey();
         }

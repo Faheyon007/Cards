@@ -40,15 +40,17 @@ namespace Cards
             int suit, number;
             string strSuit, strNumber;
 
+            Hand playableHand = GetPlayableHand(playingSuit);
+
             while (true)
             {
-                ShowHand();
+                ShowHand(playableHand);
                 Console.Write("Select a card ( Suit, Number ): ");
 
-                bool invalidCard = false;
-                bool invalidSuit = false;
-                bool cardNotFound = false;
-                bool beginningPlayer = false;
+                //bool invalidCard = false;
+                //bool invalidSuit = false;
+                //bool cardNotFound = false;
+                //bool beginningPlayer = false;
 
                 string[] inputs = Console.ReadLine().Split(' ');
                 strSuit = inputs[0];
@@ -56,60 +58,65 @@ namespace Cards
                 suit = CardInfo.GetSuit(strSuit);
                 number = CardInfo.GetNumber(strNumber);
 
-                Card card = hand.PullCard(suit, number);
+                if(playableHand.Contains(suit, number))
+                {
+                    return hand.PullCard(suit, number);
+                }
+                //Card card = hand.PullCard(suit, number);
 
 
-                if (playingSuit == -1)
-                {
-                    beginningPlayer = true;
-                }
-                if (suit != playingSuit && hand.GetCardsOfSuit(playingSuit).Count > 0)
-                {
-                    invalidSuit = true;
-                }
-                if (suit == -1 && number == -1)
-                {
-                    invalidCard = true;
-                }
-                if (card == null)
-                {
-                    cardNotFound = true;
-                }
+                //if (playingSuit == -1)
+                //{
+                //    beginningPlayer = true;
+                //}
+                //if (suit != playingSuit && hand.GetCardsOfSuit(playingSuit).Count > 0)
+                //{
+                //    invalidSuit = true;
+                //}
+                //if (suit == -1 && number == -1)
+                //{
+                //    invalidCard = true;
+                //}
+                //if (card == null)
+                //{
+                //    cardNotFound = true;
+                //}
 
-                if (!invalidCard && !cardNotFound && !invalidSuit)
-                {
-                    if (firstMove)
-                    {
-                        if (card.actualSuit.Equals("Clubs") && card.actualNumber.Equals("2"))
-                        {
-                            return card;
-                        }
-                    }
-                    else if (firstPass)
-                    {
-                        if (!(card.actualSuit.Equals("Hearts") || (card.actualSuit.Equals("Spades") && card.actualNumber.Equals("Queen"))))
-                        {
-                            return card;
-                        }
-                    }
-                    else
-                    {
-                        if (card.actualSuit.Equals("Hearts") && !heartsBreak && beginningPlayer) { }
-                        else
-                        {
-                            return card;
-                        }
-                    }
-                }
+                //if (!invalidCard && !cardNotFound && !invalidSuit)
+                //{
+                //    if (firstMove)
+                //    {
+                //        if (card.actualSuit.Equals("Clubs") && card.actualNumber.Equals("2"))
+                //        {
+                //            return card;
+                //        }
+                //    }
+                //    else if (firstPass)
+                //    {
+                //        if (!(card.actualSuit.Equals("Hearts") || (card.actualSuit.Equals("Spades") && card.actualNumber.Equals("Queen"))))
+                //        {
+                //            return card;
+                //        }
+                //    }
+                //    else
+                //    {
+                //        if (card.actualSuit.Equals("Hearts") && !heartsBreak && beginningPlayer) { }
+                //        else
+                //        {
+                //            return card;
+                //        }
+                //    }
+                //}
 
                 // if the card can not be returned then push the card back 
-                hand.PushCard(card);
+                //hand.PushCard(card);
             }
         }
 
-        public Hand GetPlayableCards(int playingSuit = -1)
+        public Hand GetPlayableHand(int playingSuit = -1)
         {
-            Hand playableHand = (Hand)hand.Clone();
+            Hand playableHand = new Hand(hand);
+
             bool beginningPlayer = false;
 
             if (playingSuit == -1)
@@ -123,11 +130,6 @@ namespace Cards
                 playableHand.Clear();
                 playableHand.PushCard(hand.GetCard(CardInfo.GetSuit("Clubs"), CardInfo.GetNumber("2")));
             }
-            else if (firstPass)
-            {
-                playableHand.RemoveCardsOfSuit(CardInfo.GetSuit("Hearts"));
-                playableHand.PullCard(CardInfo.GetSuit("Spades"), CardInfo.GetNumber("Queen"));
-            }
             else
             {
                 if (hand.ContainsSuit(playingSuit))
@@ -137,7 +139,12 @@ namespace Cards
                 }
                 else
                 {
-                    if (!heartsBreak && beginningPlayer)
+                    if (firstPass)
+                    {
+                        playableHand.RemoveCardsOfSuit(CardInfo.GetSuit("Hearts"));
+                        playableHand.PullCard(CardInfo.GetSuit("Spades"), CardInfo.GetNumber("Queen"));
+                    }
+                    else if (!heartsBreak && beginningPlayer)
                     {
                         playableHand.RemoveCardsOfSuit(CardInfo.GetSuit("Hearts"));
                     }
@@ -160,6 +167,13 @@ namespace Cards
                 Console.WriteLine(new Hand(hand.GetCardsOfSuit(suit)));
             }
 
+            Console.WriteLine();
+        }
+
+        public void ShowHand(Hand hand)
+        {
+            Console.WriteLine("\n[ {0}'s HAND ]", name.ToUpper());
+            Console.WriteLine(hand);
             Console.WriteLine();
         }
 

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Cards
 {
-    public class Hand : ICloneable
+    public class Hand
     {
         private HashSet<Card> cards = new HashSet<Card>();
 
@@ -30,6 +30,14 @@ namespace Cards
             }
 
             Sort();
+        }
+
+        public Hand(Hand hand)
+        {
+            foreach(Card card in hand.cards)
+            {
+                this.cards.Add((Card)card.Clone());
+            }
         }
 
         public bool Contains(int suit, int number)
@@ -123,8 +131,7 @@ namespace Cards
             {
                 if (card != null)
                 {
-                    cards.Add(card);
-
+                    this.cards.Add(card);
                 }
             }
 
@@ -180,15 +187,9 @@ namespace Cards
             return str;
         }
 
-        public Object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
         public void Clear()
         {
             cards.Clear();
         }
-
     }
 }

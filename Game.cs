@@ -67,7 +67,6 @@ namespace Cards
                     {
                         ShowTable();
 
-                        players[currentPlayerIndex].ShowHand(currentSuit);
                         Card playedCard = players[currentPlayerIndex].PlayCard(currentSuit);
 
                         if (playedCard.actualSuit == "Hearts")
