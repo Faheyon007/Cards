@@ -107,7 +107,12 @@ namespace Cards
 
         public void PushCard(Card card)
         {
-            cards.Add(card);
+            if (card != null)
+            {
+                cards.Add(card);
+
+            }
+
             Sort();
         }
 

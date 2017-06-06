@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Cards
 {
-    public class Player
+    public class Player : IComparable<Player>
     {
         //private User user;
         public string name { get; private set; }
+        public int score { get; set; } = 0;
         private Hand hand;
-        public List<HashSet<Card>> tricks { get; private set; } = new List<HashSet<Card>>();
+        public List<Hand> tricks { get; private set; } = new List<Hand>();
         private bool heartsBreak = false;
         private bool firstPass = true;
         private bool firstMove = true;
@@ -56,7 +57,6 @@ namespace Cards
                 number = CardInfo.GetNumber(strNumber);
 
                 Card card = hand.PullCard(suit, number);
-                ShowHand();
 
 
                 if(playingSuit == -1)
@@ -103,10 +103,7 @@ namespace Cards
                 }
 
                 // if the card can not be returned then push the card back 
-                if (card != null)
-                {
-                    hand.PushCard(card);
-                }
+                hand.PushCard(card);
             }
         }
 
@@ -145,7 +142,7 @@ namespace Cards
 
         public void ReceiveTrick(HashSet<Card> cards)
         {
-            tricks.Add(cards);
+            tricks.Add(new Hand(cards));
         }
 
         public void ClearTricks()
@@ -191,6 +188,11 @@ namespace Cards
         public void FirstMoveStatusChanged(bool status)
         {
             firstMove = status;
+        }
+
+        public int CompareTo(Player p)
+        {
+            return score.CompareTo(p.score);
         }
     }
 }

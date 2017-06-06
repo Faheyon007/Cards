@@ -11,6 +11,7 @@ namespace Cards
         private CardSet cardset = new CardSet();
         private Table playingTable = new Table();
         private bool gameOver = false;
+        private int scoreLimit = 15;
         private Player[] players;
         private int roundCount = 1;
         private int turnCount;
@@ -23,6 +24,8 @@ namespace Cards
         public delegate void FirstMoveStatusListener(bool status);
         public event FirstMoveStatusListener firstMoveStatusListener;
 
+        private bool enableJackOfDiamond = true;
+
 
         public Game(Player[] players)
         {
@@ -30,7 +33,7 @@ namespace Cards
             turnCount = cardset.cardCount / players.Length;
 
             // subscribing players to status listener events
-            foreach(Player player in players)
+            foreach (Player player in players)
             {
                 heartsBreakStatusListener += player.HeartsBreakStatusChanged;
                 firstPassStatusListener += player.FirstPassStatusChanged;
@@ -59,7 +62,7 @@ namespace Cards
                     playingTable.Clear();
 
                     int currentSuit = -1;
-                    
+
                     for (int i = 0; i < players.Length; i++)
                     {
                         ShowTable();
@@ -96,10 +99,21 @@ namespace Cards
                 }
 
                 //Update Score of Each Player
-                roundCount++;
+                UpdateScores();
+                ShowScores();
+
+                if (ScoreLimitReached())
+                {
+                    gameOver = true;
+                }
+                else
+                {
+                    roundCount++;
+                    currentLeader = ++currentLeader % players.Length;
+                }
             }
 
-            currentLeader = ++currentLeader % players.Length;
+            GameOver();
         }
 
         // Deals cards among players
@@ -135,9 +149,9 @@ namespace Cards
             string startSuit = "Clubs";
             string startNumber = "2";
 
-            for(int i=0; i<players.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
-                if(players[i].IsStartingPlayer(startSuit, startNumber))
+                if (players[i].IsStartingPlayer(startSuit, startNumber))
                 {
                     return i;
                 }
@@ -152,7 +166,7 @@ namespace Cards
             firstPassStatusListener(true);
             firstMoveStatusListener(true);
 
-            for (int i=0; i<players.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
                 players[i].ClearTricks();
             }
@@ -162,7 +176,7 @@ namespace Cards
         {
             List<HashSet<Card>> cardsList = new List<HashSet<Card>>();
 
-            for(int i=0; i<players.Length; i++)
+            for (int i = 0; i < players.Length; i++)
             {
                 cardsList.Add(players[i].GetCardsToPass());
             }
@@ -170,13 +184,13 @@ namespace Cards
             // pass cards to left
             if (roundCount % 4 == 0)
             {
-                for(int i=0; i<players.Length; i++)
+                for (int i = 0; i < players.Length; i++)
                 {
                     players[(players.Length - i - 1) % players.Length].ReceivePassedCards(cardsList[i]);
                 }
             }
             // pass cards to right
-            else if(roundCount % 4 == 1)
+            else if (roundCount % 4 == 1)
             {
                 for (int i = 0; i < players.Length; i++)
                 {
@@ -190,6 +204,94 @@ namespace Cards
                 {
                     players[(i + 2) % players.Length].ReceivePassedCards(cardsList[i]);
                 }
+            }
+        }
+
+        private void UpdateScores()
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                int score = 0;
+
+                foreach (Hand trick in players[i].tricks)
+                {
+                    score += trick.GetCardsOfSuit(CardInfo.GetSuit("Hearts")).Count;
+
+                    if (trick.Contains(CardInfo.GetSuit("Spades"), CardInfo.GetNumber("Queen")))
+                    {
+                        score += 12;
+                    }
+
+                    if (enableJackOfDiamond)
+                    {
+                        if (trick.Contains(CardInfo.GetSuit("Diamonds"), CardInfo.GetNumber("Jack")))
+                        {
+                            score -= 10;
+                        }
+                    }
+                }
+
+                players[i].score += score;
+            }
+        }
+
+        private void ShowScores()
+        {
+            Console.WriteLine("\n[ SCORES ]\n");
+
+            foreach (Player player in players)
+            {
+                Console.WriteLine(string.Format("{0}\t\t{1}", player.name, player.score).ToUpper());
+            }
+
+            Console.WriteLine();
+        }
+
+        private bool ScoreLimitReached()
+        {
+            foreach(Player player in players)
+            {
+                if(player.score >= scoreLimit)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Handles game over activities like displaying the winner.
+        /// </summary>
+        private void GameOver()
+        {
+            List<Player> sortedPlayers = new List<Player>(players);
+            sortedPlayers.Sort();
+
+            int winningScore = sortedPlayers[0].score;
+            List<Player> winningScorers = new List<Player>();
+
+            for (int i = 0; i < sortedPlayers.Count; i++)
+            {
+                if (sortedPlayers[i].score > winningScore)
+                {
+                    break;
+                }
+                else if (sortedPlayers[i].score == winningScore)
+                {
+                    winningScorers.Add(sortedPlayers[i]);
+                }
+            }
+
+            Console.WriteLine("\n[ GAME OVER ]\n");
+
+            if (winningScorers.Count > 1)
+            {
+                Console.WriteLine("\n[ NO SINGLE WINNER ]\n");
+            }
+            else
+            {
+                Console.WriteLine("\n[ {0} HAS WON THE GAME ]\n", winningScorers[0].name.ToUpper());
             }
         }
     }
